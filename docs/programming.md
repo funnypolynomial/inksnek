@@ -25,3 +25,12 @@ inksnek.path_add(box_group, box_path, inknek.cut_style)
 ```
 This creates a 5x5 square at `(10, 10)` within `box_group`, to be laser-cut. 
 Based on the creation of `box_group` above, the box will be at `(20, 20)` from the design origin (the origin of `top_group`).
+
+# STYLES
+The class creates three predefined styles, for line cutting and etching and for area etches:  
+`cut_style`  
+`etch_style`  
+`fill_style`  
+In addition  
+`ignore_style`  
+creates linework which is visible in `DEVEL` mode but is omitted from the SVG in `FINAL` mode.

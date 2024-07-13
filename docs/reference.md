@@ -1,10 +1,15 @@
 # class Inksnek Reference
+There is a single instance of the class:
+```
+# global instance  
+inksnek = Inksnek()
+```
 
-## CONSTANTS
+## STATICS/CONSTANTS
 
 ### Design modes:   `DEVEL, FINAL, REAL, PRINT, PROTO`
 `DEVEL` is for _working_ on a design.  
-`FINAL` is for _sending to be laser cut_ -- lines are finer, `ignore_style` objects are omitted.  
+`FINAL` is for _sending to be laser cut_ -- lines are finer, `ignore_style`/`ignore_colour` objects are omitted.  
 `REAL` attempts a _realistic_ look -- etches are shades of gray, fills are degrees of transparency, cuts are black, ignore is omitted, lines are thicker.  
 `PRINT` is intended for _printing_ -- all cut, etch and ignore lines are black, fills are omitted, lines are thicker.  
 `PROTO` this is intended for printing the cutting by hand, all cut, and etch lines are black, ignore and fills are omitted, lines are thicker.  
@@ -20,7 +25,7 @@ Somewhat moot, but in theory a design could adjust itself to the selected materi
 ### Alignment:  `LEFT_ALIGN, CENTRE_ALIGN, RIGHT_ALIGN, BASE_ALIGN, TOP_ALIGN, MID_ALIGN`
 Passed to `add_annotation()` to align text
 
-## METHODS
+## METHODS/MEMBERS
 ### Setup
 `setup(self, effect, template_number, material, thickness, units, mode)`  
 A design starts with this, it should be the first call in `effect()`, it sets up the class for rendering a design.  
@@ -54,7 +59,25 @@ Scales the group. If `scale_y` is omitted, `scale_x` is used.
     
 
 ### Styles
-Opacity of 1.0 means fully opaque, 0.0 is fully transparent.
+#### Members
+Predefined styles:  
+`cut_style`  
+Specifies a **laser cut line** through the material. A thin blue line.  
+
+`etch_style`
+Specifies a **laser etched line** into the material. A thin red line.  
+
+`fill_style`  
+Specifies a **laser etched area**. A black filled area.  
+
+`ignore_style`  
+Specifies a visible line **ignored by the laser**. A thin orange line.
+
+#### Methods
+`ignore_colour()`  
+Returns the "ignore" colour which will not be used in the `FINAL` design.  
+
+(Opacity of 1.0 means fully opaque, 0.0 is fully transparent.)
         
 `create_stroke_style(self, colour, width, opacity = 1.0)`  
 Returns a style for stroked lines.
@@ -137,9 +160,11 @@ A shape is a way of representing a complex path, it is of the form `[[x1,y1], [x
 Adds the `shape` as a _path_ in the `group`, _translated_ to `(x, y)` and _scaled_.
 
 ### Perf Board
-Pitch used below.  
+#### Members
 `perf_board_pitch = 2.54`
-    
+Pitch used below.  
+
+#### Methods
 `on_perf_board(self, holes)`  
 Returns the distance spanned by the number of perfboard holes.
     
@@ -160,3 +185,15 @@ Returns `(x, y)` corresponding to the `radius` at the angle. `angle_degrees` is 
 Returns `degrees` normalised to `[0,360)`.
         
 
+### Other Members
+```
+units
+material
+material_thickness
+line_width
+mode
+template_number
+template_height
+template_width
+template_margin
+```
