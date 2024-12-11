@@ -168,13 +168,13 @@ class Inksnek:
         return parent.add(g)
         
     def create_stroke_style(self, colour, width, opacity = 1.0):
-        return str(inkex.Style({"stroke":colour, "stroke-width":inksnek._length(width, "px"), "fill":"none", "opacity":opacity}))
+        return str(inkex.Style({"stroke":colour, "stroke-width":width, "fill":"none", "opacity":opacity}))
         
     def create_fill_style(self, colour, opacity = 1.0):
         return str(inkex.Style({"stroke":"none", "stroke-width":"none", "fill":colour, "opacity":opacity}))
         
     def create_style(self, line_colour, line_width, fill_colour, opacity = 1.0):
-        return str(inkex.Style({"stroke":line_colour, "stroke-width":line_width, "fill":colour, "opacity":opacity}))
+        return str(inkex.Style({"stroke":line_colour, "stroke-width":line_width, "fill":fill_colour, "opacity":opacity}))
         
     def path_start(self): return ""  # for completeness
     # x and y or a tuple with (x, y)
@@ -311,7 +311,7 @@ class Inksnek:
         txt.text = text
         group.add(txt)
         
-    def add_shape(self, group, x, y, scale_x, scale_y, shape, style):
+    def shape_to_path(self, x, y, scale_x, scale_y, shape):
         # shape is [[x1,y1], [x2,y2], ...]. draw-to's are [x,y], moves are [[x,y]], a close is [].
         # nodes are at (x + xN*scaleX, y + yN*scaleY)
         path = self.path_start()
@@ -323,8 +323,13 @@ class Inksnek:
             path += self.path_move_to(x + node[0][0]*scale_x, y + node[0][1]*scale_y)
           elif len(node) == 0:
             path += self.path_close()
-        self.add_path(group, path, style)
+        return path
     
+    def add_shape(self, group, x, y, scale_x, scale_y, shape, style):
+        # shape is [[x1,y1], [x2,y2], ...]. draw-to's are [x,y], moves are [[x,y]], a close is [].
+        # nodes are at (x + xN*scaleX, y + yN*scaleY)
+        self.add_path(group, self.shape_to_path(x, y, scale_x, scale_y, shape), style)
+
     def add_annotation(self, group, x, y, text, size = 2.0, style = None, align = 0):
         # add text using a simple stroked "font", see annotationPath
         if style is None:  style = self.ignore_style
