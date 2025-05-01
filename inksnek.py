@@ -194,6 +194,29 @@ class Inksnek:
         return ""
       else:
         return "a %.3f %.3f 0 0 %i" % (self._length(abs(R)), self._length(abs(R)), R > 0) + " %.3f %.3f" % self._xy_coord(x, y)
+        
+    def path_arc(self, cx, cy, radius, start_angle_deg, end_angle_deg, large = None):
+        # arc is clockwise from startAngle to endAngle, anticlockwise if radius < 0, large is deduced unless specified
+        # https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
+        # "(rx ry x-axis-rotation large-arc-flag sweep-flag x y)
+        #  Draws an elliptical arc from the current point to (x, y). 
+        #  The size and orientation of the ellipse are defined by two radii (rx, ry) and an x-axis-rotation, 
+        #  which indicates how the ellipse as a whole is rotated relative to the current coordinate system. 
+        #  The center (cx, cy) of the ellipse is calculated automatically to satisfy the constraints imposed by the other parameters. 
+        #  large-arc-flag (1=large) and sweep-flag (1=clockwise) contribute to the automatic calculations and help determine how the arc is drawn."
+        # returns the path
+        if large == None:
+            start_angle_deg = self.normalise_angle(start_angle_deg)
+            end_angle_deg = self.normalise_angle(end_angle_deg)
+            if radius > 0:  # clockwise
+                span = end_angle_deg - start_angle_deg
+            else:    
+                span = start_angle_deg - end_angle_deg
+            large = abs(self.normalise_angle(span)) > 180
+        abs_r = self._length(abs(radius))
+        s = self.polar_to_rectangular(abs_r, start_angle_deg)
+        e = self.polar_to_rectangular(abs_r, end_angle_deg)
+        return self.path_move_to(cx + s[0], cy + s[1]) + "A %.3f %.3f 0 %i %i" % (abs_r, abs_r, large, radius > 0) + " %.3f %.3f" % self._xy_coord((cx + e[0], cy + e[1]))
     
     # needs to be preceded by pathMoveTo or pathLineTo (*not* By, Horz or Vert variants)
     def path_arrow_to(self, x, y, length): 
@@ -258,29 +281,10 @@ class Inksnek:
         c.radius = self._length(radius)
         c.center = (self._x_coord(x), self._y_coord(y))
         return group.add(c)
-        
+                
     def add_arc(self, group, cx, cy, radius, start_angle_deg, end_angle_deg, style, large = None):
-        # arc is clockwise from startAngle to endAngle, anticlockwise if radius < 0, large is deduced unless specified
-        # https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
-        # "(rx ry x-axis-rotation large-arc-flag sweep-flag x y)
-        #  Draws an elliptical arc from the current point to (x, y). 
-        #  The size and orientation of the ellipse are defined by two radii (rx, ry) and an x-axis-rotation, 
-        #  which indicates how the ellipse as a whole is rotated relative to the current coordinate system. 
-        #  The center (cx, cy) of the ellipse is calculated automatically to satisfy the constraints imposed by the other parameters. 
-        #  large-arc-flag (1=large) and sweep-flag (1=clockwise) contribute to the automatic calculations and help determine how the arc is drawn."
-        if large == None:
-            start_angle_deg = self.normalise_angle(start_angle_deg)
-            end_angle_deg = self.normalise_angle(end_angle_deg)
-            if radius > 0:  # clockwise
-                span = end_angle_deg - start_angle_deg
-            else:    
-                span = start_angle_deg - end_angle_deg
-            large = abs(self.normalise_angle(span)) > 180
-        abs_r = self._length(abs(radius))
-        s = self.polar_to_rectangular(abs_r, start_angle_deg)
-        e = self.polar_to_rectangular(abs_r, end_angle_deg)
-        path = self.path_move_to(cx + s[0], cy + s[1]) + "A %.3f %.3f 0 %i %i" % (abs_r, abs_r, large, radius > 0) + " %.3f %.3f" % self._xy_coord((cx + e[0], cy + e[1]))
-        return self.add_path(group, path, style)
+        # see path_arc
+        return self.add_path(group, self.path_arc(cx, cy, radius, start_angle_deg, end_angle_deg, large), style)
 
     def add_X_marker(self, group, x, y, size = 2.0, style = None):
         # add an 'X'

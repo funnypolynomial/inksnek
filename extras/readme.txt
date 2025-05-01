@@ -8,6 +8,9 @@ an 8x8 pixel font but as an outline, with some stencil support
 * plotter_font
 a stroked font based on 1520 plotter ROM
 
+* stroked_font
+a stroked font made of lines and arcs
+
 * read_gerber_holes
 reads Gerber drill (.DRL) files, on their own or from a .zip
 returns a list of holes, to aid incorporating PCBs in laser cut enclosures
